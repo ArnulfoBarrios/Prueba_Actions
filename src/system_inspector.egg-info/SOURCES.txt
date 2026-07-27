@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+src/system_inspector/__init__.py
+src/system_inspector/cli.py
+src/system_inspector/inspector_service.py
+src/system_inspector/system_provider.py
+src/system_inspector.egg-info/PKG-INFO
+src/system_inspector.egg-info/SOURCES.txt
+src/system_inspector.egg-info/dependency_links.txt
+src/system_inspector.egg-info/entry_points.txt
+src/system_inspector.egg-info/requires.txt
+src/system_inspector.egg-info/top_level.txt
+tests/test_cli.py
+tests/test_inspector_service.py
+tests/test_system_provider.py

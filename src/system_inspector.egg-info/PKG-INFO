@@ -1,0 +1,116 @@
+Metadata-Version: 2.4
+Name: system-inspector
+Version: 0.1.0
+Summary: Multi-platform System Inspector MVP for testing GitHub Actions workflows
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+
+# Inspector de Sistema Multiplataforma (GitHub Actions MVP)
+
+Este proyecto es un **Producto Mínimo Viable (MVP)** escrito en Python, diseñado específicamente para validar y demostrar el funcionamiento de **GitHub Actions** en múltiples sistemas operativos (**Windows**, **Linux** y **macOS**).
+
+---
+
+## 🚀 Características Principales
+
+- **Detección Multiplataforma**: Identifica el sistema operativo, release, arquitectura, versión de Python y separador de rutas de archivo (`/` vs `\`).
+- **Diagnóstico de Salud**: Evalúa el almacenamiento disponible en disco y genera alertas preventivas.
+- **Formato Dual (CLI)**: Genera resúmenes legibles en consola o reportes estructurados en formato `JSON`.
+- **Arquitectura Limpia**: Separación de capas en proveedores de datos de sistema, servicios de negocio e interfaz de línea de comandos (CLI).
+- **Matriz de CI/CD**: Workflow de GitHub Actions que ejecuta pruebas automatizadas en 9 entornos en paralelo (3 S.O. x 3 versiones de Python).
+
+---
+
+## 📁 Estructura del Proyecto
+
+```text
+.
+├── .github/
+│   └── workflows/
+│       └── ci.yml               # Matriz de GitHub Actions (Windows, Linux, macOS)
+├── src/
+│   └── system_inspector/
+│       ├── __init__.py
+│       ├── system_provider.py    # Capa de datos y acceso al S.O.
+│       ├── inspector_service.py # Lógica de negocio y formateo
+│       └── cli.py               # Interfaz de línea de comandos (CLI)
+├── tests/
+│   ├── __init__.py
+│   ├── test_system_provider.py  # Tests unitarios del proveedor S.O.
+│   ├── test_inspector_service.py # Tests unitarios de lógica de negocio
+│   └── test_cli.py              # Tests de integración CLI
+├── pyproject.toml               # Configuración del paquete y dependencias
+└── README.md                    # Documentación del proyecto
+```
+
+---
+
+## 🛠️ Instalación y Uso Local
+
+### 1. Requisitos Previos
+- Python 3.10 o superior instalado.
+
+### 2. Instalación en Modo Desarrollo
+```bash
+pip install -e .[dev]
+```
+
+### 3. Ejecución de la Herramienta CLI
+
+**Resumen por consola (Español):**
+```bash
+python -m system_inspector.cli --summary
+```
+
+**Salida en formato JSON:**
+```bash
+python -m system_inspector.cli --json
+```
+
+---
+
+## 🧪 Pruebas Unitarias y Cobertura
+
+Para ejecutar la suite de pruebas unitarias y verificar la cobertura de código:
+
+```bash
+pytest --cov=src/system_inspector --cov-report=term-missing tests/
+```
+
+Para ejecutar el linter de código:
+```bash
+flake8 src tests --max-line-length=100
+```
+
+---
+
+## ⚙️ ¿Cómo probar en GitHub Actions?
+
+Para probar la ejecución en **Windows**, **Ubuntu** y **macOS** en GitHub:
+
+1. **Inicializar el repositorio Git local**:
+   ```bash
+   git init
+   git add .
+   git commit -m "feat: initial commit with cross-platform system inspector"
+   ```
+
+2. **Crear un nuevo repositorio en GitHub** (ejemplo: `system-inspector-actions`).
+
+3. **Vincular el remoto y subir los cambios**:
+   ```bash
+   git branch -M main
+   git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+   git push -u origin main
+   ```
+
+4. **Verificar el Flujo en GitHub**:
+   - Ve a la pestaña **Actions** en tu repositorio de GitHub.
+   - Verás el workflow **Cross-Platform CI Matrix** ejecutándose automáticamente en:
+     - `ubuntu-latest` (Python 3.10, 3.11, 3.12)
+     - `windows-latest` (Python 3.10, 3.11, 3.12)
+     - `macos-latest` (Python 3.10, 3.11, 3.12)

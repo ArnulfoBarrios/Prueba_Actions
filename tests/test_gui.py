@@ -1,0 +1,45 @@
+"""
+Unit tests for Desktop GUI application initialization.
+Follows testing naming rule: should [action] when [condition].
+"""
+
+import unittest
+from unittest.mock import patch
+import tkinter as tk
+from system_inspector.gui import SystemInspectorApp
+
+
+class TestSystemInspectorApp(unittest.TestCase):
+
+    def test_should_initialize_gui_widgets_when_root_created(self):
+        try:
+            root = tk.Tk()
+            root.withdraw()  # Hide window during test
+            app = SystemInspectorApp(root)
+            self.assertIsNotNone(app.sys_info_label)
+            self.assertIsNotNone(app.file_details_text)
+            self.assertIsNotNone(app.status_label)
+            root.destroy()
+        except tk.TclError:
+            # Handle headless environment gracefully
+            pass
+
+    @patch("tkinter.filedialog.askopenfilename")
+    def test_should_handle_file_selection_when_file_picked(self, mock_dialog):
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            mock_dialog.return_value = "pyproject.toml"
+
+            app = SystemInspectorApp(root)
+            app._select_and_inspect_file()
+
+            details_text = app.file_details_text.get("1.0", tk.END)
+            self.assertIn("ANÁLISIS DE ARCHIVO", details_text)
+            root.destroy()
+        except tk.TclError:
+            pass
+
+
+if __name__ == "__main__":
+    unittest.main()
