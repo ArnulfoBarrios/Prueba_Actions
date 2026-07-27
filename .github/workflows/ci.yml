@@ -26,6 +26,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install Virtual Display (Ubuntu Linux only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -46,3 +52,20 @@ jobs:
       - name: Run System Inspector CLI (JSON Output)
         run: |
           python -m system_inspector.cli --json
+
+      - name: Capture GUI Window Screenshot (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run python -m system_inspector.screenshot_generator
+
+      - name: Capture GUI Window Screenshot (Windows / macOS)
+        if: runner.os != 'Linux'
+        run: |
+          python -m system_inspector.screenshot_generator
+
+      - name: Upload GUI Screenshot Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-screenshot-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: screenshots/
+          if-no-files-found: ignore

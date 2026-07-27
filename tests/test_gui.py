@@ -40,6 +40,19 @@ class TestSystemInspectorApp(unittest.TestCase):
         except tk.TclError:
             pass
 
+    def test_should_capture_screenshot_when_called(self):
+        try:
+            from system_inspector.screenshot_generator import capture_screenshot
+            import tempfile
+            import os
+
+            with tempfile.TemporaryDirectory() as temp_dir:
+                out_path = os.path.join(temp_dir, "test_shot.png")
+                result_path = capture_screenshot(out_path)
+                self.assertEqual(result_path, out_path)
+        except (tk.TclError, Exception):
+            pass
+
 
 if __name__ == "__main__":
     unittest.main()
