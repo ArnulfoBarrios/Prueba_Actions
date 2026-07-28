@@ -240,6 +240,7 @@ class SystemInspectorApp:
 
         output_lines.append("============================================================")
 
+        self.folder_details_text.insert("1.0", "\n".join(output_lines))
         status_msg = f"Carpeta '{result['folder_name']}' evaluada: {result['mvp_score']}/100"
         self.status_label.config(text=status_msg)
 

@@ -24,7 +24,7 @@ class TestSystemInspectorApp(unittest.TestCase):
         except tk.TclError:
             pass
 
-    @patch("tkinter.filedialog.askopenfilename")
+    @patch("system_inspector.gui.filedialog.askopenfilename")
     def test_should_handle_file_selection_when_file_picked(self, mock_dialog):
         try:
             root = tk.Tk()
@@ -40,7 +40,7 @@ class TestSystemInspectorApp(unittest.TestCase):
         except tk.TclError:
             pass
 
-    @patch("tkinter.filedialog.askdirectory")
+    @patch("system_inspector.gui.filedialog.askdirectory")
     def test_should_handle_folder_selection_when_folder_picked(self, mock_dialog):
         try:
             root = tk.Tk()
