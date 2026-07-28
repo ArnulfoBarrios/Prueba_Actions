@@ -1,22 +1,21 @@
 """
-Desktop Graphical User Interface (GUI) module designed with Apple macOS HIG aesthetic.
-Provides modern, minimal dark graphite layout, system status dashboard, file inspector,
-and advanced folder MVP evaluator.
+Desktop Graphical User Interface (GUI) module designed with Apple macOS HIG aesthetic
+and Power BI Style Analytics Dashboard.
 """
 
 import sys
 import tkinter as tk
 from tkinter import filedialog, ttk
 
+from system_inspector.chart_drawer import PowerBIChartDrawer
 from system_inspector.file_inspector import FileInspectorService
 from system_inspector.folder_inspector import FolderInspectorService
 from system_inspector.inspector_service import InspectorService
 
 
 class SystemInspectorApp:
-    """Main Desktop Window application styled following Apple macOS HIG principles."""
+    """Main Desktop Window application styled following Apple macOS HIG & Power BI Analytics."""
 
-    # Apple Dark Graphite Palette Tokens
     COLOR_BG = "#1c1c1e"
     COLOR_CARD = "#2c2c2e"
     COLOR_BORDER = "#3a3a3c"
@@ -29,9 +28,9 @@ class SystemInspectorApp:
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("System Inspector & MVP Evaluator")
-        self.root.geometry("880x700")
-        self.root.minsize(760, 560)
+        self.root.title("System Inspector & Power BI Analytics MVP")
+        self.root.geometry("960x740")
+        self.root.minsize(820, 600)
         self.root.configure(bg=self.COLOR_BG)
 
         self._inspector_service = InspectorService()
@@ -47,10 +46,8 @@ class SystemInspectorApp:
         style = ttk.Style(self.root)
         style.theme_use("clam")
 
-        # Global backgrounds
         style.configure(".", background=self.COLOR_BG, foreground=self.COLOR_PRIMARY_TEXT)
 
-        # Header Frame
         style.configure("Header.TFrame", background=self.COLOR_CARD)
         style.configure(
             "HeaderTitle.TLabel",
@@ -65,7 +62,6 @@ class SystemInspectorApp:
             font=("Segoe UI", 10),
         )
 
-        # Notebook Tabs
         style.configure(
             "TNotebook",
             background=self.COLOR_BG,
@@ -87,7 +83,6 @@ class SystemInspectorApp:
             foreground=[("selected", "#ffffff")],
         )
 
-        # Cards & Labelframes
         style.configure(
             "AppleCard.TLabelframe",
             background=self.COLOR_CARD,
@@ -104,7 +99,6 @@ class SystemInspectorApp:
         )
         style.configure("CardInner.TFrame", background=self.COLOR_CARD)
 
-        # Buttons
         style.configure(
             "ApplePrimary.TButton",
             font=("Segoe UI", 10, "bold"),
@@ -140,13 +134,13 @@ class SystemInspectorApp:
 
         ttk.Label(
             header_frame,
-            text="System Inspector & MVP Evaluator",
+            text="System Inspector & Power BI Analytics Dashboard",
             style="HeaderTitle.TLabel",
         ).pack(anchor="w")
 
         ttk.Label(
             header_frame,
-            text="Multi-platform environment diagnostics and project MVP validator",
+            text="Multi-platform environment diagnostics and project language breakdown",
             style="HeaderSubtitle.TLabel",
         ).pack(anchor="w", pady=(3, 0))
 
@@ -156,19 +150,19 @@ class SystemInspectorApp:
         self.notebook = ttk.Notebook(main_container)
         self.notebook.pack(fill="both", expand=True, pady=(0, 10))
 
-        # Tab 1: System Status
-        self.tab_sys = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_sys, text="System Health")
-        self._build_system_tab()
+        # Tab 1: Power BI Analytics & Folder Evaluator
+        self.tab_analytics = ttk.Frame(self.notebook, padding=12)
+        self.notebook.add(self.tab_analytics, text="📊 Power BI Analytics")
+        self._build_analytics_tab()
 
-        # Tab 2: Folder Evaluator
-        self.tab_folder = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_folder, text="Folder MVP Evaluator")
-        self._build_folder_tab()
+        # Tab 2: System Status
+        self.tab_sys = ttk.Frame(self.notebook, padding=12)
+        self.notebook.add(self.tab_sys, text="💻 System Health")
+        self._build_system_tab()
 
         # Tab 3: File Inspector
         self.tab_file = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_file, text="File Inspector")
+        self.notebook.add(self.tab_file, text="📄 File Inspector")
         self._build_file_tab()
 
         # Bottom Status Bar
@@ -190,6 +184,84 @@ class SystemInspectorApp:
             command=self.root.destroy,
         ).pack(side="right")
 
+    def _build_analytics_tab(self) -> None:
+        """Build Power BI Analytics Dashboard Tab."""
+        actions_frame = ttk.Frame(self.tab_analytics)
+        actions_frame.pack(fill="x", pady=(0, 10))
+
+        ttk.Button(
+            actions_frame,
+            text="📂 Select Project Directory for Analytics...",
+            style="ApplePrimary.TButton",
+            command=self._select_and_inspect_folder,
+        ).pack(side="left", padx=(0, 10))
+
+        ttk.Button(
+            actions_frame,
+            text="Clear",
+            style="AppleSecondary.TButton",
+            command=self._clear_folder_info,
+        ).pack(side="left")
+
+        # Top Visual Charts Row (KPI Card & Donut Chart Canvas)
+        charts_row = ttk.Frame(self.tab_analytics)
+        charts_row.pack(fill="x", pady=(0, 10))
+
+        # KPI Metric Card Canvas
+        self.kpi_canvas = tk.Canvas(
+            charts_row,
+            width=360,
+            height=140,
+            bg=self.COLOR_BG,
+            highlightthickness=0,
+        )
+        self.kpi_canvas.pack(side="left", padx=(0, 10), fill="both", expand=True)
+
+        # Donut Chart Canvas
+        self.donut_canvas = tk.Canvas(
+            charts_row,
+            width=460,
+            height=140,
+            bg=self.COLOR_BG,
+            highlightthickness=0,
+        )
+        self.donut_canvas.pack(side="right", fill="both", expand=True)
+
+        # Draw initial placeholders
+        PowerBIChartDrawer.draw_kpi_card(
+            self.kpi_canvas, 0, "PROJECT MVP SCORE", "No Folder Selected"
+        )
+        PowerBIChartDrawer.draw_donut_chart(
+            self.donut_canvas, {}, "Language Composition (% Code)"
+        )
+
+        # Diagnostic Details Text Frame
+        folder_card = ttk.LabelFrame(
+            self.tab_analytics,
+            text=" Detailed Diagnostics & Recommendations ",
+            style="AppleCard.TLabelframe",
+            padding=10,
+        )
+        folder_card.pack(fill="both", expand=True)
+
+        self.folder_details_text = tk.Text(
+            folder_card,
+            wrap="word",
+            font=("Consolas", 10),
+            bg="#1e1e20",
+            fg=self.COLOR_PRIMARY_TEXT,
+            insertbackground=self.COLOR_PRIMARY_TEXT,
+            relief="solid",
+            bd=1,
+            highlightthickness=0,
+            height=10,
+        )
+        self.folder_details_text.pack(fill="both", expand=True)
+        self.folder_details_text.insert(
+            "1.0",
+            "Select a project directory to generate Power BI charts & MVP diagnostics...",
+        )
+
     def _build_system_tab(self) -> None:
         """Build System Status Tab."""
         system_card = ttk.LabelFrame(
@@ -208,51 +280,6 @@ class SystemInspectorApp:
             foreground=self.COLOR_PRIMARY_TEXT,
         )
         self.sys_info_label.pack(anchor="w")
-
-    def _build_folder_tab(self) -> None:
-        """Build Folder MVP Evaluator Tab."""
-        folder_card = ttk.LabelFrame(
-            self.tab_folder,
-            text=" Project Directory Analysis ",
-            style="AppleCard.TLabelframe",
-            padding=12,
-        )
-        folder_card.pack(fill="both", expand=True)
-
-        actions_frame = ttk.Frame(folder_card, style="CardInner.TFrame")
-        actions_frame.pack(fill="x", pady=(0, 10))
-
-        ttk.Button(
-            actions_frame,
-            text="Select Project Folder...",
-            style="ApplePrimary.TButton",
-            command=self._select_and_inspect_folder,
-        ).pack(side="left", padx=(0, 10))
-
-        ttk.Button(
-            actions_frame,
-            text="Clear",
-            style="AppleSecondary.TButton",
-            command=self._clear_folder_info,
-        ).pack(side="left")
-
-        self.folder_details_text = tk.Text(
-            folder_card,
-            wrap="word",
-            font=("Consolas", 10),
-            bg="#1e1e20",
-            fg=self.COLOR_PRIMARY_TEXT,
-            insertbackground=self.COLOR_PRIMARY_TEXT,
-            relief="solid",
-            bd=1,
-            highlightthickness=0,
-            height=16,
-        )
-        self.folder_details_text.pack(fill="both", expand=True)
-        self.folder_details_text.insert(
-            "1.0",
-            "Click 'Select Project Folder' to evaluate project MVP status, security, and issues...",
-        )
 
     def _build_file_tab(self) -> None:
         """Build File Inspector Tab."""
@@ -309,7 +336,7 @@ class SystemInspectorApp:
             self.sys_info_label.config(text=f"Error loading system details: {err}")
 
     def _select_and_inspect_folder(self) -> None:
-        """Open folder dialog and evaluate folder MVP score."""
+        """Open folder dialog, render Power BI charts, and evaluate MVP score."""
         folder_path = filedialog.askdirectory(title="Select Project Directory")
 
         if not folder_path:
@@ -324,16 +351,36 @@ class SystemInspectorApp:
             self.status_label.config(text="Folder analysis failed.")
             return
 
+        # Render Power BI Charts
+        score = result["mvp_score"]
+        verdict = result["mvp_verdict"]
+        languages = result.get("language_breakdown", {})
+
+        PowerBIChartDrawer.draw_kpi_card(
+            self.kpi_canvas, score, "PROJECT MVP SCORE", verdict
+        )
+        PowerBIChartDrawer.draw_donut_chart(
+            self.donut_canvas, languages, "Language Composition (% Code)"
+        )
+
         output_lines = [
             "============================================================",
             f" PROJECT MVP EVALUATION: {result['folder_name']}",
             "============================================================",
             f" Absolute Path : {result['folder_path']}",
-            f" MVP Score     : {result['mvp_score']} / 100",
-            f" VERDICT       : {result['mvp_verdict']}",
+            f" Primary Language : {result['primary_language']}",
+            f" Total Code Files : {result['total_scanned_files']}",
+            f" MVP Score        : {score} / 100",
+            f" VERDICT          : {verdict}",
             "------------------------------------------------------------",
-            " STANDARDS & STRUCTURE CHECKLIST:",
+            " LANGUAGE BREAKDOWN:",
         ]
+
+        for lang, pct in languages.items():
+            output_lines.append(f"   • {lang:<15} : {pct}%")
+
+        output_lines.append("------------------------------------------------------------")
+        output_lines.append(" STANDARDS & STRUCTURE CHECKLIST:")
 
         for item in result["criteria_checklist"]:
             icon = "  [PASS]" if item["status"] else "  [FAIL]"
@@ -369,15 +416,21 @@ class SystemInspectorApp:
         output_lines.append("============================================================")
 
         self.folder_details_text.insert("1.0", "\n".join(output_lines))
-        status_msg = f"Folder '{result['folder_name']}' evaluated: {result['mvp_score']}/100"
+        status_msg = f"Folder '{result['folder_name']}' evaluated: {score}/100"
         self.status_label.config(text=status_msg)
 
     def _clear_folder_info(self) -> None:
-        """Clear folder details panel."""
+        """Clear folder details panel and reset Power BI charts."""
         self.folder_details_text.delete("1.0", tk.END)
         self.folder_details_text.insert(
             "1.0",
-            "Click 'Select Project Folder' to evaluate project MVP status...",
+            "Select a project directory to generate Power BI charts & MVP diagnostics...",
+        )
+        PowerBIChartDrawer.draw_kpi_card(
+            self.kpi_canvas, 0, "PROJECT MVP SCORE", "No Folder Selected"
+        )
+        PowerBIChartDrawer.draw_donut_chart(
+            self.donut_canvas, {}, "Language Composition (% Code)"
         )
         self.status_label.config(text="Ready.")
 

@@ -1,6 +1,6 @@
 """
 Module for scanning project directories and evaluating advanced MVP readiness.
-Detects security vulnerabilities, syntax errors, repo bloat, and standards compliance.
+Detects security vulnerabilities, syntax errors, repo bloat, and language composition.
 Follows SOLID business logic separation.
 """
 
@@ -33,9 +33,35 @@ class FolderInspectorService:
         (re.compile(r"(?i)password\s*=\s*['\"][^'\"]{8,}['\"]"), "Contraseña hardcodeada"),
     ]
 
+    LANGUAGE_EXTENSIONS = {
+        ".py": "Python",
+        ".js": "JavaScript",
+        ".jsx": "JavaScript",
+        ".ts": "TypeScript",
+        ".tsx": "TypeScript",
+        ".dart": "Dart",
+        ".html": "HTML",
+        ".htm": "HTML",
+        ".css": "CSS",
+        ".scss": "CSS",
+        ".cpp": "C++",
+        ".c": "C",
+        ".h": "C/C++ Header",
+        ".java": "Java",
+        ".go": "Go",
+        ".rs": "Rust",
+        ".php": "PHP",
+        ".rb": "Ruby",
+        ".json": "JSON / Config",
+        ".yaml": "YAML / Config",
+        ".yml": "YAML / Config",
+        ".toml": "TOML / Config",
+        ".md": "Markdown",
+    }
+
     def inspect_folder(self, folder_path: str) -> Dict[str, Any]:
         """
-        Analyze a folder for project structure, security, syntax, and line endings.
+        Analyze a folder for project structure, security, syntax, and language breakdown.
         """
         if not os.path.exists(folder_path):
             return {
@@ -67,6 +93,7 @@ class FolderInspectorService:
         syntax_findings = self._validate_syntax(abs_path)
         bloat_findings = self._check_repo_bloat(abs_path)
         line_ending_scan = self._scan_directory_line_endings(abs_path)
+        language_breakdown = self._analyze_language_breakdown(abs_path)
 
         criteria = [
             {"name": "Configuración de Proyecto", "status": has_config, "weight": 15},
@@ -111,6 +138,9 @@ class FolderInspectorService:
             "syntax_findings": syntax_findings,
             "bloat_findings": bloat_findings,
             "line_ending_issues": line_ending_scan["has_mixed"],
+            "language_breakdown": language_breakdown["percentages"],
+            "total_scanned_files": language_breakdown["total_files"],
+            "primary_language": language_breakdown["primary_language"],
             "recommendations": recommendations,
         }
 
@@ -241,6 +271,40 @@ class FolderInspectorService:
             "crlf_files": crlf_count,
             "lf_files": lf_count,
             "has_mixed": has_mixed,
+        }
+
+    def _analyze_language_breakdown(self, abs_path: str) -> Dict[str, Any]:
+        """Calculate programming language composition percentages across files."""
+        counts: Dict[str, int] = {}
+        total_files = 0
+        skip_dirs = ["__pycache__", "venv", ".venv", "node_modules", ".git"]
+
+        for root, dirs, files in os.walk(abs_path):
+            dirs[:] = [d for d in dirs if d not in skip_dirs]
+            for file in files:
+                _, ext = os.path.splitext(file.lower())
+                if ext in self.LANGUAGE_EXTENSIONS:
+                    lang = self.LANGUAGE_EXTENSIONS[ext]
+                    counts[lang] = counts.get(lang, 0) + 1
+                    total_files += 1
+
+        if total_files == 0:
+            return {
+                "percentages": {"Otros": 100.0},
+                "total_files": 0,
+                "primary_language": "N/A",
+            }
+
+        percentages: Dict[str, float] = {}
+        for lang, count in counts.items():
+            percentages[lang] = round((count / total_files) * 100, 1)
+
+        primary = max(percentages, key=percentages.get) if percentages else "Otros"
+
+        return {
+            "percentages": percentages,
+            "total_files": total_files,
+            "primary_language": primary,
         }
 
     def _generate_recommendations(
