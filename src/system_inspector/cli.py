@@ -56,12 +56,22 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def main(args_list: Optional[List[str]] = None) -> int:
-    """Main execution function for CLI."""
+    """Main execution function for CLI/GUI."""
     configure_utf8_output()
     parser = create_parser()
     args = parser.parse_args(args_list)
 
-    if args.gui:
+    # Launch GUI if explicit --gui or if executed without arguments (e.g. double-clicked .exe)
+    has_no_flags = (
+        args_list is None
+        and not args.gui
+        and not args.json
+        and not args.summary
+        and not args.file
+        and not args.folder
+    )
+
+    if args.gui or has_no_flags:
         from system_inspector.gui import launch_gui
         launch_gui()
         return 0
