@@ -239,7 +239,7 @@ class SystemInspectorApp:
         self.folder_details_text = tk.Text(
             folder_card,
             wrap="word",
-            font=("Consolas", 9.5),
+            font=("Consolas", 10),
             bg="#1e1e20",
             fg=self.COLOR_PRIMARY_TEXT,
             insertbackground=self.COLOR_PRIMARY_TEXT,
@@ -284,7 +284,7 @@ class SystemInspectorApp:
         self.file_details_text = tk.Text(
             file_card,
             wrap="word",
-            font=("Consolas", 9.5),
+            font=("Consolas", 10),
             bg="#1e1e20",
             fg=self.COLOR_PRIMARY_TEXT,
             insertbackground=self.COLOR_PRIMARY_TEXT,

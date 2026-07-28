@@ -35,7 +35,7 @@ class TestSystemInspectorApp(unittest.TestCase):
             app._select_and_inspect_file()
 
             details_text = app.file_details_text.get("1.0", tk.END)
-            self.assertIn("ANÁLISIS DE ARCHIVO", details_text)
+            self.assertIn("FILE ANALYSIS", details_text)
             root.destroy()
         except tk.TclError:
             pass
@@ -51,7 +51,7 @@ class TestSystemInspectorApp(unittest.TestCase):
             app._select_and_inspect_folder()
 
             details_text = app.folder_details_text.get("1.0", tk.END)
-            self.assertIn("EVALUACIÓN DE PROYECTO MVP", details_text)
+            self.assertIn("PROJECT MVP EVALUATION", details_text)
             root.destroy()
         except tk.TclError:
             pass
