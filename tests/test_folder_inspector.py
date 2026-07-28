@@ -33,10 +33,11 @@ class TestFolderInspectorService(unittest.TestCase):
 
     def test_should_evaluate_full_mvp_folder_when_all_criteria_present(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Create required files
             open(os.path.join(temp_dir, "pyproject.toml"), "w").close()
             open(os.path.join(temp_dir, "README.md"), "w").close()
             open(os.path.join(temp_dir, ".gitignore"), "w").close()
+            open(os.path.join(temp_dir, "LICENSE"), "w").close()
+            open(os.path.join(temp_dir, ".editorconfig"), "w").close()
 
             tests_dir = os.path.join(temp_dir, "tests")
             os.makedirs(tests_dir)
@@ -52,14 +53,34 @@ class TestFolderInspectorService(unittest.TestCase):
             self.assertIn("APTO PARA MVP", result["mvp_verdict"])
             self.assertEqual(len(result["recommendations"]), 0)
 
-    def test_should_generate_recommendations_when_incomplete_folder(self):
+    def test_should_detect_secret_key_when_hardcoded_in_file(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Empty folder
+            file_path = os.path.join(temp_dir, "config.py")
+            with open(file_path, "w", encoding="utf-8") as fh:
+                fh.write("AWS_KEY = 'AKIA1234567890ABCDEF'\n")
+
             result = self.service.inspect_folder(temp_dir)
             self.assertTrue(result["valid"])
-            self.assertEqual(result["mvp_score"], 0)
-            self.assertIn("NO APTO COMO MVP", result["mvp_verdict"])
-            self.assertGreater(len(result["recommendations"]), 0)
+            self.assertGreater(len(result["secret_findings"]), 0)
+
+    def test_should_detect_syntax_error_when_python_corrupted(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file_path = os.path.join(temp_dir, "broken.py")
+            with open(file_path, "w", encoding="utf-8") as fh:
+                fh.write("def broken_func(\n")  # Syntax error
+
+            result = self.service.inspect_folder(temp_dir)
+            self.assertTrue(result["valid"])
+            self.assertGreater(len(result["syntax_findings"]), 0)
+
+    def test_should_detect_repo_bloat_when_unignored_folder_present(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            venv_dir = os.path.join(temp_dir, "node_modules")
+            os.makedirs(venv_dir)
+
+            result = self.service.inspect_folder(temp_dir)
+            self.assertTrue(result["valid"])
+            self.assertGreater(len(result["bloat_findings"]), 0)
 
 
 if __name__ == "__main__":
