@@ -15,9 +15,10 @@ class TestCLI(unittest.TestCase):
 
     def test_should_parse_flags_when_created(self):
         parser = create_parser()
-        args = parser.parse_args(["--json", "--gui"])
+        args = parser.parse_args(["--json", "--gui", "--folder", "."])
         self.assertTrue(args.json)
         self.assertTrue(args.gui)
+        self.assertEqual(args.folder, ".")
         self.assertFalse(args.summary)
 
     @patch("sys.stdout", new_callable=io.StringIO)
@@ -48,6 +49,13 @@ class TestCLI(unittest.TestCase):
         output = mock_stdout.getvalue()
         self.assertEqual(exit_code, 0)
         self.assertIn("ANÁLISIS DE ARCHIVO", output)
+
+    @patch("sys.stdout", new_callable=io.StringIO)
+    def test_should_inspect_folder_when_folder_flag_passed(self, mock_stdout):
+        exit_code = main(["--folder", "."])
+        output = mock_stdout.getvalue()
+        self.assertEqual(exit_code, 0)
+        self.assertIn("EVALUACIÓN DE PROYECTO MVP", output)
 
 
 if __name__ == "__main__":

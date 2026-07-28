@@ -1,23 +1,30 @@
-# Inspector de Sistema Multiplataforma & Validador de Archivos MVP
+# System Inspector & Evaluador de Proyectos MVP Multiplataforma
 
-Este proyecto es una **aplicación de software de escritorio** y **herramienta CLI** escrita en Python, diseñada específicamente para probar el funcionamiento de aplicaciones en **Windows**, **Linux** y **macOS** mediante **GitHub Actions**.
+Este proyecto es una **aplicación de software de escritorio** y **suite CLI** escrita en Python, configurada para compilar **ejecutables nativos (`.exe` en Windows y `.app` en macOS)** y evaluar carpetas completas de proyectos para determinar su nivel de **Producto Mínimo Viable (MVP)**.
 
 ---
 
 ## 🚀 Características Principales
 
-1. **Software de Escritorio (GUI)**:
-   - Ventana gráfica con botones de **Abrir y Cerrar**, panel de estado del sistema operativo y selector interactivo de archivos.
-   - Desarrollado con `tkinter` para ejecutarse de forma nativa e idéntica en cualquier sistema operativo sin dependencias externas pesadas.
+1. **Evaluador y Diagnóstico de Carpetas/Proyectos MVP**:
+   - Analiza cualquier carpeta de proyecto y evalúa los 6 pilares esenciales de un MVP:
+     - 📄 **Configuración**: Presencia de `pyproject.toml`, `setup.py`, `package.json` o `requirements.txt`.
+     - 📖 **Documentación**: Presencia de `README.md`.
+     - 🛡️ **Control de Versiones**: Presencia de `.gitignore`.
+     - 🧪 **Suite de Pruebas**: Existencia de carpeta `tests/` o archivos de prueba.
+     - ⚙️ **Integración Continua**: Configuración de GitHub Actions en `.github/workflows/`.
+     - 🌐 **Compatibilidad Multiplataforma**: Detección de saltos de línea mixtos (`CRLF` vs `LF`).
+   - Genera un **Puntaje MVP (0-100%)**, veredicto visual y **lista de recomendaciones específicas** con lo que falta para llegar a ser un MVP.
 
-2. **Inspector de Archivos Multiplataforma para MVP**:
-   - Inspección de archivos seleccionados por el usuario.
-   - Identificación de saltos de línea (`CRLF` de Windows vs `LF` de Linux/macOS) para detectar posibles problemas de compatibilidad.
-   - Cálculo de tamaño, codificación (UTF-8 / Binario), hash de integridad SHA-256 y cantidad de líneas.
-   - **Veredicto de preparación para MVP**.
+2. **Compilación de Ejecutables Nativos (.exe / .app)**:
+   - Empacado autónomo con `PyInstaller` para ejecutar la aplicación sin requerir Python instalado.
+   - En **GitHub Actions**, cada push compila automáticamente el ejecutable **`SystemInspector.exe`** en Windows y **`SystemInspector.app`** en macOS, dejándolos disponibles para descarga inmediata.
 
-3. **Matriz de CI/CD en GitHub Actions**:
-   - Ejecución automática de pruebas unitarias y linters en 9 entornos en paralelo (**Ubuntu, Windows, macOS** con **Python 3.10, 3.11, 3.12**).
+3. **Software de Escritorio (GUI)**:
+   - Ventana con pestañas interactivas desarrolladas en `tkinter`:
+     - 📊 Tablero de métricas del S.O.
+     - 📂 Evaluador visual de carpetas de proyecto.
+     - 📄 Inspector de archivos individuales.
 
 ---
 
@@ -27,88 +34,79 @@ Este proyecto es una **aplicación de software de escritorio** y **herramienta C
 .
 ├── .github/
 │   └── workflows/
-│       └── ci.yml               # Matriz de CI/CD para GitHub Actions
+│       └── ci.yml               # Matriz de CI/CD y compilador de .exe / .app
 ├── src/
 │   └── system_inspector/
 │       ├── __init__.py
-│       ├── system_provider.py    # Proveedor de metadatos de hardware y S.O.
-│       ├── inspector_service.py # Lógica de salud y diagnósticos
-│       ├── file_inspector.py    # Servicio de inspección de archivos y veredicto MVP
+│       ├── system_provider.py    # Metadatos del S.O.
+│       ├── inspector_service.py # Lógica de salud y métricas
+│       ├── file_inspector.py    # Servicio de inspección de archivos
+│       ├── folder_inspector.py  # Evaluador de carpetas y diagnósticos MVP
 │       ├── gui.py               # Aplicación gráfica de escritorio (GUI Tkinter)
+│       ├── screenshot_generator.py # Capturador de imágenes para CI
 │       └── cli.py               # Interfaz de línea de comandos (CLI)
-├── tests/
-│   ├── __init__.py
-│   ├── test_system_provider.py  # Tests del proveedor de datos
-│   ├── test_inspector_service.py # Tests de la lógica de salud
-│   ├── test_file_inspector.py   # Tests del analizador de archivos
-│   ├── test_gui.py              # Tests de componentes GUI
-│   └── test_cli.py              # Tests de la interfaz CLI
-├── pyproject.toml               # Empaquetado y dependencias del proyecto
-└── README.md                    # Guía del software
+├── tests/                       # Suite de 33 pruebas unitarias e integración
+├── pyproject.toml               # Empaquetado y dependencias
+└── README.md                    # Documentación
 ```
 
 ---
 
-## 🖥️ Cómo Ejecutar el Software
+## 🖥️ Cómo Usar el Software
 
-### 1. Iniciar la Aplicación de Escritorio (GUI Window)
-Puedes abrir la ventana interactiva del software ejecutando:
-
+### 1. Iniciar la Ventana de Escritorio (GUI)
 ```bash
 system-inspector --gui
 ```
-*O alternativamente con Python:*
+*O usando Python:*
 ```bash
 python -m system_inspector.gui
 ```
 
-### 2. Inspeccionar un Archivo desde la CLI
-Si prefieres analizar un archivo directamente por consola:
+### 2. Evaluar una Carpeta de Proyecto desde la Consola
+```bash
+python -m system_inspector.cli --folder .
+```
+
+### 3. Inspeccionar un Archivo Específico desde Consola
 ```bash
 python -m system_inspector.cli --file pyproject.toml
 ```
 
-### 3. Ver Resumen del Sistema en Consola
-```bash
-system-inspector --summary
-```
-
-### 4. Salida en formato JSON
-```bash
-system-inspector --json
-```
+### 4. Compilar Ejecutable Localmente con PyInstaller
+- **En Windows (`SystemInspector.exe`)**:
+  ```powershell
+  pyinstaller --noconfirm --onefile --windowed --name SystemInspector src/system_inspector/cli.py
+  ```
+- **En macOS (`SystemInspector.app`)**:
+  ```bash
+  pyinstaller --noconfirm --onefile --windowed --name SystemInspector src/system_inspector/cli.py
+  ```
+*El ejecutable final se guardará en la carpeta `dist/`.*
 
 ---
 
 ## 🧪 Pruebas Automatizadas y Cobertura
 
-Para verificar la suite de 26 pruebas unitarias y la cobertura de código:
+Para ejecutar las 33 pruebas unitarias y verificar la cobertura de código:
 
 ```bash
 pytest --cov=src/system_inspector --cov-report=term-missing tests/
 ```
 
-Para ejecutar el linter de código:
+Para verificar el linter de código:
 ```bash
 flake8 src tests --max-line-length=100
 ```
 
 ---
 
-## ⚙️ Cómo subirlo y probarlo en GitHub Actions
+## 📦 Descargar los Ejecutables (.exe / .app) desde GitHub Actions
 
-1. Inicializar git e ingresar los cambios:
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: add desktop gui window and file inspector mvp"
-   ```
-
-2. Vincular tu repositorio de GitHub y subirlo:
-   ```bash
-   git branch -M main
-   git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
-   git push -u origin main
-   ```
-
-3. Revisa la pestaña **Actions** en tu repositorio de GitHub para ver las pruebas ejecutándose en Windows, Ubuntu y macOS.
+1. Entra a tu repositorio: 👉 [https://github.com/ArnulfoBarrios/Prueba_Actions](https://github.com/ArnulfoBarrios/Prueba_Actions)
+2. Haz clic en la pestaña **`Actions`**.
+3. Selecciona la última ejecución del workflow **`Cross-Platform CI Matrix & Executable Builder`**.
+4. En la sección **`Artifacts`** encontrarás los ejecutables listos para descargar:
+   - 🪟 **`SystemInspector-Windows-Executable`** (`.exe`)
+   - 🍏 **`SystemInspector-macOS-Executable`** (`.app` / ejecutable mac)
+   - 🐧 **`SystemInspector-Linux-Executable`**

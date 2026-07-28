@@ -1,4 +1,4 @@
-name: Cross-Platform CI Matrix
+name: Cross-Platform CI Matrix & Executable Builder
 
 on:
   push:
@@ -45,13 +45,13 @@ jobs:
         run: |
           pytest --cov=src/system_inspector --cov-report=term-missing tests/
 
-      - name: Run System Inspector CLI (Text Output)
+      - name: Run System Inspector CLI (Summary)
         run: |
           python -m system_inspector.cli --summary
 
-      - name: Run System Inspector CLI (JSON Output)
+      - name: Run Folder Inspector CLI (Local Scan)
         run: |
-          python -m system_inspector.cli --json
+          python -m system_inspector.cli --folder .
 
       - name: Capture GUI Window Screenshot (Linux)
         if: runner.os == 'Linux'
@@ -69,3 +69,63 @@ jobs:
           name: gui-screenshot-${{ matrix.os }}-py${{ matrix.python-version }}
           path: screenshots/
           if-no-files-found: ignore
+
+  build-executables:
+    name: Build Binary Executable (${{ matrix.os }})
+    needs: test-matrix
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Build Executable with PyInstaller (Windows .exe)
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --name SystemInspector src/system_inspector/cli.py
+
+      - name: Build Executable with PyInstaller (macOS .app / binary)
+        if: runner.os == 'macOS'
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --name SystemInspector src/system_inspector/cli.py
+
+      - name: Build Executable with PyInstaller (Linux binary)
+        if: runner.os == 'Linux'
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --name SystemInspector src/system_inspector/cli.py
+
+      - name: Upload Executable Artifact (Windows .exe)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SystemInspector-Windows-Executable
+          path: dist/SystemInspector.exe
+
+      - name: Upload Executable Artifact (macOS .app / binary)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SystemInspector-macOS-Executable
+          path: dist/SystemInspector*
+
+      - name: Upload Executable Artifact (Linux Binary)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SystemInspector-Linux-Executable
+          path: dist/SystemInspector
