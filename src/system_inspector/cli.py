@@ -13,6 +13,15 @@ from system_inspector.folder_inspector import FolderInspectorService
 from system_inspector.inspector_service import InspectorService
 
 
+def configure_utf8_output() -> None:
+    """Ensure sys.stdout uses UTF-8 encoding on Windows legacy consoles if possible."""
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
+
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure command-line argument parser in Spanish."""
     parser = argparse.ArgumentParser(
@@ -48,6 +57,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args_list: Optional[List[str]] = None) -> int:
     """Main execution function for CLI."""
+    configure_utf8_output()
     parser = create_parser()
     args = parser.parse_args(args_list)
 
@@ -66,7 +76,7 @@ def main(args_list: Optional[List[str]] = None) -> int:
                 print(f"Error: {result.get('error')}")
             else:
                 print("==========================================")
-                print(f" 📂 EVALUACIÓN DE PROYECTO MVP: {result['folder_name']}")
+                print(f" [DIR] EVALUACION DE PROYECTO MVP: {result['folder_name']}")
                 print("==========================================")
                 print(f" Ruta         : {result['folder_path']}")
                 print(f" Puntaje MVP  : {result['mvp_score']} / 100")
@@ -74,11 +84,11 @@ def main(args_list: Optional[List[str]] = None) -> int:
                 print("------------------------------------------")
                 print(" CHECKLIST DE CRITERIOS:")
                 for item in result["criteria_checklist"]:
-                    icon = "✅" if item["status"] else "❌"
+                    icon = "[OK]" if item["status"] else "[X]"
                     print(f"  {icon} {item['name']}")
                 print("------------------------------------------")
                 if result.get("recommendations"):
-                    print(" ⚠️ RECOMENDACIONES PARA SER UN MVP:")
+                    print(" [!] RECOMENDACIONES PARA SER UN MVP:")
                     for rec in result["recommendations"]:
                         print(f"   - {rec}")
                 print("==========================================")
@@ -94,7 +104,7 @@ def main(args_list: Optional[List[str]] = None) -> int:
                 print(f"Error: {result.get('error')}")
             else:
                 print("==========================================")
-                print(f" 📄 ANÁLISIS DE ARCHIVO: {result['file_name']}")
+                print(f" [FILE] ANALISIS DE ARCHIVO: {result['file_name']}")
                 print("==========================================")
                 print(f" Ruta       : {result['file_path']}")
                 print(f" Tamaño     : {result['size_kb']} KB")

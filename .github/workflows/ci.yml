@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master ]
 
+env:
+  PYTHONIOENCODING: utf-8
+
 jobs:
   test-matrix:
     name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})

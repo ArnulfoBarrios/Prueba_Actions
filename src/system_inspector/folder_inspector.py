@@ -59,11 +59,11 @@ class FolderInspectorService:
         recommendations = self._generate_recommendations(criteria, line_ending_scan)
 
         if score >= 80:
-            verdict = "🟢 APTO PARA MVP MULTIPLATAFORMA"
+            verdict = "APTO PARA MVP MULTIPLATAFORMA"
         elif score >= 50:
-            verdict = "🟡 PARCIALMENTE VIABLE (Requiere mejoras)"
+            verdict = "PARCIALMENTE VIABLE (Requiere mejoras)"
         else:
-            verdict = "🔴 NO APTO COMO MVP (Faltan elementos esenciales)"
+            verdict = "NO APTO COMO MVP (Faltan elementos esenciales)"
 
         return {
             "valid": True,

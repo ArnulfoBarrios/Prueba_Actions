@@ -48,14 +48,14 @@ class TestCLI(unittest.TestCase):
         exit_code = main(["--file", temp_path])
         output = mock_stdout.getvalue()
         self.assertEqual(exit_code, 0)
-        self.assertIn("ANÁLISIS DE ARCHIVO", output)
+        self.assertIn("ANALISIS DE ARCHIVO", output)
 
     @patch("sys.stdout", new_callable=io.StringIO)
     def test_should_inspect_folder_when_folder_flag_passed(self, mock_stdout):
         exit_code = main(["--folder", "."])
         output = mock_stdout.getvalue()
         self.assertEqual(exit_code, 0)
-        self.assertIn("EVALUACIÓN DE PROYECTO MVP", output)
+        self.assertIn("EVALUACION DE PROYECTO MVP", output)
 
 
 if __name__ == "__main__":
